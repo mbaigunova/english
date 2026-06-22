@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-title" content="WordBox">
 <title>WordBox — мои слова</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -460,6 +457,89 @@ body {
 }
 .gd-tip b { color: #FBBF24; }
 
+/* Flashcards */
+.fc-area { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.fc-prog-row { display: flex; align-items: center; gap: 10px; }
+.fc-prog-bar { flex: 1; height: 5px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.fc-prog-fill { height: 100%; border-radius: 4px; background: #F87171; transition: width 0.4s; }
+.fc-counter { font-size: 13px; font-weight: 700; color: var(--text-mid); white-space: nowrap; }
+
+.fc-card-scene { width: 100%; perspective: 1000px; }
+.fc-card-wrap {
+  width: 100%; min-height: 240px;
+  position: relative; transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(.4,.2,.2,1);
+  cursor: pointer;
+}
+.fc-card-wrap.flipped { transform: rotateY(180deg); }
+.fc-card-face {
+  position: absolute; inset: 0; min-height: 240px;
+  border-radius: var(--radius);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  padding: 28px 24px; box-shadow: var(--shadow);
+}
+.fc-front {
+  background: linear-gradient(135deg, #3730A3, var(--accent));
+  color: white;
+}
+.fc-back { background: var(--surface); transform: rotateY(180deg); }
+.fc-card-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 12px; }
+.fc-card-word { font-size: 36px; font-weight: 900; text-align: center; line-height: 1.2; }
+.fc-card-ph { font-size: 15px; opacity: 0.75; margin-top: 8px; }
+.fc-card-hint { font-size: 12px; opacity: 0.5; margin-top: 12px; }
+.fc-card-ru { font-size: 28px; font-weight: 800; color: var(--text); text-align: center; }
+.fc-card-ex { font-size: 13px; color: var(--text-mid); text-align: center; margin-top: 10px; font-style: italic; line-height: 1.5; }
+.fc-card-forms { margin-top: 10px; padding: 8px 14px; background: var(--surface2); border-radius: 8px; font-size: 13px; color: var(--text-mid); text-align: center; }
+.fc-speak-btn {
+  margin-top: 14px; background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3); border-radius: 10px;
+  padding: 7px 16px; font-size: 13px; font-weight: 600; color: white;
+  cursor: pointer;
+}
+
+.fc-btns { display: flex; gap: 10px; }
+.fc-btn {
+  flex: 1; padding: 15px 8px; border-radius: var(--radius);
+  border: 2px solid transparent; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
+  transition: all 0.15s; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+}
+.fc-btn:active { transform: scale(0.95); }
+.fc-btn-no    { background: var(--red-soft);    border-color: var(--red);    color: var(--red); }
+.fc-btn-maybe { background: var(--amber-soft);  border-color: var(--amber);  color: var(--amber); }
+.fc-btn-yes   { background: var(--green-soft);  border-color: var(--green);  color: var(--green); }
+.fc-btn-emoji { font-size: 22px; }
+
+.fc-flip-btn {
+  background: var(--accent); color: white; border: none;
+  border-radius: var(--radius); padding: 16px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.fc-flip-btn:active { opacity: 0.8; }
+
+.fc-done-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 20px;
+  text-align: center;
+}
+.fc-done-emoji { font-size: 56px; margin-bottom: 12px; }
+.fc-done-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+.fc-done-sub { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; }
+.fc-done-stats { display: flex; gap: 10px; margin-bottom: 20px; }
+.fc-done-stat { flex: 1; background: var(--surface2); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; }
+.fc-done-val { font-size: 24px; font-weight: 900; }
+.fc-done-lbl { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
+.fc-done-btn {
+  background: var(--accent); color: white; border: none;
+  border-radius: var(--radius-sm); padding: 14px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: 'Inter', sans-serif; width: 100%;
+}
+
 /* Import modal */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -548,19 +628,20 @@ body {
       <div class="nav-badge" id="homeWordsBadge">0</div>
       <div class="nav-card-arrow">›</div>
     </div>
-    <div class="nav-card" onclick="showScreen('addword')">
-      <div class="nav-icon purple">➕</div>
+    <div class="nav-card" onclick="startFlashcards()">
+      <div class="nav-icon" style="background:rgba(248,113,113,0.15)">🃏</div>
       <div class="nav-card-text">
-        <div class="nav-card-name">Добавить слова</div>
-        <div class="nav-card-desc">Одно слово или импорт списка</div>
+        <div class="nav-card-name">Карточки</div>
+        <div class="nav-card-desc">Учи слова — Не знаю / Сомневаюсь / Знаю</div>
       </div>
+      <div class="nav-badge" id="homeCardsBadge" style="background:rgba(248,113,113,0.15);color:#F87171">—</div>
       <div class="nav-card-arrow">›</div>
     </div>
     <div class="nav-card" onclick="startTest()" id="testNavCard">
       <div class="nav-icon green">🧪</div>
       <div class="nav-card-text">
         <div class="nav-card-name">Пройти тест</div>
-        <div class="nav-card-desc">До 20 слов, случайный порядок</div>
+        <div class="nav-card-desc">До 10 слов, введи перевод</div>
       </div>
       <div class="nav-badge green" id="homeTestBadge">—</div>
       <div class="nav-card-arrow">›</div>
@@ -573,6 +654,78 @@ body {
       </div>
       <div class="nav-badge" style="background:rgba(251,191,36,0.15);color:#FBBF24">12 тем</div>
       <div class="nav-card-arrow">›</div>
+    </div>
+    <div class="nav-card" onclick="showScreen('addword')">
+      <div class="nav-icon purple">➕</div>
+      <div class="nav-card-text">
+        <div class="nav-card-name">Добавить слова</div>
+        <div class="nav-card-desc">AI заполнит всё автоматически</div>
+      </div>
+      <div class="nav-card-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FLASHCARDS ══ -->
+<div id="flashcards" class="screen">
+  <div class="s-header">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div>
+      <div class="s-title">🃏 Карточки</div>
+      <div class="s-sub" id="fcSub">Нажми на карточку для перевода</div>
+    </div>
+  </div>
+  <div class="fc-area">
+    <div class="fc-prog-row">
+      <div class="fc-prog-bar"><div class="fc-prog-fill" id="fcProgFill" style="width:0%"></div></div>
+      <div class="fc-counter" id="fcCounter">1 / 10</div>
+    </div>
+    <div class="fc-card-scene">
+      <div class="fc-card-wrap" id="fcCardWrap" onclick="fcFlip()">
+        <div class="fc-card-face fc-front">
+          <div class="fc-card-tag">Английский</div>
+          <div class="fc-card-word" id="fcWord">—</div>
+          <div class="fc-card-ph" id="fcPh"></div>
+          <button class="fc-speak-btn" id="fcSpeakBtn" onclick="event.stopPropagation();fcSpeak()">🔊 Послушать</button>
+          <div class="fc-card-hint">нажми чтобы увидеть перевод</div>
+        </div>
+        <div class="fc-card-face fc-back">
+          <div class="fc-card-tag">Перевод</div>
+          <div class="fc-card-ru" id="fcRu">—</div>
+          <div class="fc-card-forms" id="fcForms" style="display:none"></div>
+          <div class="fc-card-ex" id="fcEx"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="fcFlipWrap">
+      <button class="fc-flip-btn" onclick="fcFlip()">Показать перевод 👀</button>
+    </div>
+
+    <div class="fc-btns" id="fcBtns" style="display:none">
+      <button class="fc-btn fc-btn-no" onclick="fcAnswer('no')">
+        <span class="fc-btn-emoji">😕</span>Не знаю
+      </button>
+      <button class="fc-btn fc-btn-maybe" onclick="fcAnswer('maybe')">
+        <span class="fc-btn-emoji">🤔</span>Сомневаюсь
+      </button>
+      <button class="fc-btn fc-btn-yes" onclick="fcAnswer('yes')">
+        <span class="fc-btn-emoji">😊</span>Знаю
+      </button>
+    </div>
+
+    <div id="fcDoneWrap" style="display:none">
+      <div class="fc-done-card">
+        <div class="fc-done-emoji">🎉</div>
+        <div class="fc-done-title" id="fcDoneTitle">Сессия завершена!</div>
+        <div class="fc-done-sub" id="fcDoneSub"></div>
+        <div class="fc-done-stats">
+          <div class="fc-done-stat"><div class="fc-done-val" style="color:var(--green)" id="fcDoneYes">0</div><div class="fc-done-lbl">😊 Знаю</div></div>
+          <div class="fc-done-stat"><div class="fc-done-val" style="color:var(--amber)" id="fcDoneMaybe">0</div><div class="fc-done-lbl">🤔 Сомневаюсь</div></div>
+          <div class="fc-done-stat"><div class="fc-done-val" style="color:var(--red)" id="fcDoneNo">0</div><div class="fc-done-lbl">😕 Не знаю</div></div>
+        </div>
+        <button class="fc-done-btn" onclick="startFlashcards()">Ещё раз 🔄</button>
+      </div>
     </div>
   </div>
 </div>
@@ -606,30 +759,47 @@ body {
     <button class="back-btn" onclick="showScreen('home')">←</button>
     <div>
       <div class="s-title">➕ Добавить слова</div>
-      <div class="s-sub">Одно слово или целый список</div>
+      <div class="s-sub">AI заполнит всё автоматически</div>
     </div>
   </div>
   <div class="add-area">
-    <div class="form-card">
-      <div class="form-card-title">Одно слово или фраза</div>
+
+    <!-- Step 1: input -->
+    <div class="form-card" id="aiAddStep1">
+      <div class="form-card-title">Введи слово или фразу</div>
+      <div class="field">
+        <div class="field-row">
+          <input class="f-input" id="inEn" placeholder="Например: to run, jealous, give back..." autocomplete="off" onkeydown="if(event.key==='Enter')aiAnalyzeWord()">
+          <button class="ai-transcribe-btn" onclick="aiAnalyzeWord()" id="aiAnalyzeBtn" style="white-space:nowrap;padding:0 16px">✨ Заполнить</button>
+        </div>
+      </div>
+      <div id="aiAnalyzeStatus" style="display:none;text-align:center;padding:12px 0;font-size:14px;color:var(--text-mid)">
+        ⏳ AI анализирует слово...
+      </div>
+    </div>
+
+    <!-- Step 2: preview (hidden until AI fills) -->
+    <div class="form-card" id="aiAddStep2" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="form-card-title" style="margin-bottom:0">Проверь и сохрани</div>
+        <button onclick="resetAiForm()" style="background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer">✕ Сбросить</button>
+      </div>
+
       <div class="field">
         <label>По-английски</label>
-        <div class="field-row">
-          <input class="f-input" id="inEn" placeholder="Например: to run" autocomplete="off">
-          <button class="ai-transcribe-btn" onclick="autoTranscribe()" id="transcribeBtn">🔤 IPA</button>
-        </div>
+        <input class="f-input" id="previewEn" autocomplete="off">
       </div>
       <div class="field">
         <label>Транскрипция</label>
-        <input class="f-input" id="inPh" placeholder="Например: [tuː rʌn]" autocomplete="off">
+        <input class="f-input" id="previewPh" autocomplete="off">
       </div>
       <div class="field">
         <label>Перевод на русский</label>
-        <input class="f-input" id="inRu" placeholder="Например: бегать" autocomplete="off">
+        <input class="f-input" id="previewRu" autocomplete="off">
       </div>
       <div class="field">
-        <label>Пример (необязательно)</label>
-        <input class="f-input" id="inEx" placeholder="Например: I run every morning." autocomplete="off" onkeydown="if(event.key==='Enter')addWord()">
+        <label>Пример</label>
+        <input class="f-input" id="previewEx" autocomplete="off">
       </div>
       <div class="field">
         <label>Категория</label>
@@ -638,10 +808,9 @@ body {
           <button class="cat-btn verb"   data-cat="verb"   onclick="selectCat('verb')">🟢 Глагол</button>
           <button class="cat-btn adj"    data-cat="adj"    onclick="selectCat('adj')">🩷 Прилагательное</button>
           <button class="cat-btn phrase" data-cat="phrase" onclick="selectCat('phrase')">🟡 Фраза</button>
-          <button class="cat-btn other active" data-cat="other"  onclick="selectCat('other')">Другое</button>
+          <button class="cat-btn other"  data-cat="other"  onclick="selectCat('other')">Другое</button>
         </div>
       </div>
-
       <div class="field" id="verbTypeField" style="display:none">
         <label>Тип глагола</label>
         <div style="display:flex;gap:8px;">
@@ -649,18 +818,16 @@ body {
           <button class="cat-btn verb" id="btnIrregular" onclick="selectVerbType('irregular')" style="flex:1">⚡ Неправильный</button>
         </div>
       </div>
-
       <div id="irregularFields" style="display:none">
         <div class="field">
-          <label>V2 — Past Simple (например: went)</label>
-          <input class="f-input" id="inV2" placeholder="Вторая форма" autocomplete="off">
+          <label>V2 — Past Simple</label>
+          <input class="f-input" id="inV2" autocomplete="off">
         </div>
         <div class="field">
-          <label>V3 — Past Participle (например: gone)</label>
-          <input class="f-input" id="inV3" placeholder="Третья форма" autocomplete="off">
+          <label>V3 — Past Participle</label>
+          <input class="f-input" id="inV3" autocomplete="off">
         </div>
       </div>
-
       <button class="btn-primary" onclick="addWord()">Добавить в словарь</button>
     </div>
 
@@ -819,46 +986,92 @@ function updateHome() {
   const words = DB.getWords()
   const stats = DB.getStats()
   const mastered = words.filter(w => (w.correct || 0) >= 5).length
+  const toReview = words.filter(w => (w.seen || 0) === 0 || (w.wrong || 0) > 0).length
   document.getElementById('homeTotal').textContent = words.length
   document.getElementById('homeMastered').textContent = mastered
   document.getElementById('homeTests').textContent = stats.tests
   document.getElementById('homeWordsBadge').textContent = words.length + ' слов'
+  document.getElementById('homeCardsBadge').textContent = toReview > 0 ? toReview + ' слов' : 'всё ок'
   document.getElementById('homeTestBadge').textContent = words.length >= 2 ? 'Начать' : 'Нужно 2+'
 }
 
 // ══ ADD WORD ══
-async function autoTranscribe() {
+// ══ AI ANALYZE WORD ══
+async function aiAnalyzeWord() {
   const en = document.getElementById('inEn').value.trim()
-  if (!en) { showToast('Сначала введи слово по-английски'); return }
-  const btn = document.getElementById('transcribeBtn')
-  btn.textContent = '⏳'
+  if (!en) { showToast('Введи слово по-английски'); return }
+
+  const btn = document.getElementById('aiAnalyzeBtn')
+  const status = document.getElementById('aiAnalyzeStatus')
   btn.disabled = true
+  btn.textContent = '⏳'
+  status.style.display = 'block'
+  document.getElementById('aiAddStep2').style.display = 'none'
+
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6', max_tokens: 100,
-        system: 'Ты помощник. Отвечай ТОЛЬКО транскрипцией IPA в квадратных скобках, ничего больше. Пример: [tuː rʌn]',
-        messages: [{ role: 'user', content: `Транскрипция IPA для: "${en}"` }]
+        model: 'claude-sonnet-4-6', max_tokens: 300,
+        system: `Ты помощник для изучения английского. Анализируй слово и отвечай ТОЛЬКО валидным JSON без markdown, без пояснений.
+Формат ответа:
+{"ph":"IPA транскрипция в []","ru":"перевод на русский","ex":"короткий пример на английском","cat":"noun|verb|adj|other","verbType":"regular|irregular|phrasal|","v2":"вторая форма или пустая строка","v3":"третья форма или пустая строка"}
+cat: noun=существительное, verb=обычный глагол, adj=прилагательное или наречие, other=всё остальное включая фразовые глаголы и фразы.
+Для фразовых глаголов (phrasal verbs): cat="verb", verbType="phrasal", v2="" v3="".
+Для неправильных глаголов: verbType="irregular", заполни v2 и v3.
+Для правильных глаголов: verbType="regular", v2="" v3="".`,
+        messages: [{ role: 'user', content: `Слово: "${en}"` }]
       })
     })
     const data = await res.json()
-    const ph = data.content?.[0]?.text?.trim() || ''
-    document.getElementById('inPh').value = ph
-    showToast('Транскрипция добавлена!')
+    let text = data.content?.[0]?.text?.trim() || ''
+    text = text.replace(/```json|```/g, '').trim()
+    const result = JSON.parse(text)
+
+    // fill preview
+    document.getElementById('previewEn').value = en
+    document.getElementById('previewPh').value = result.ph || ''
+    document.getElementById('previewRu').value = result.ru || ''
+    document.getElementById('previewEx').value = result.ex || ''
+    document.getElementById('inV2').value = result.v2 || ''
+    document.getElementById('inV3').value = result.v3 || ''
+
+    // set category
+    selectCat(result.cat || 'other')
+    if (result.cat === 'verb') {
+      selectVerbType(result.verbType === 'irregular' ? 'irregular' : 'regular')
+      // hide verb type toggle for phrasal — they are just verbs
+      if (result.verbType === 'phrasal') {
+        document.getElementById('verbTypeField').style.display = 'none'
+        document.getElementById('irregularFields').style.display = 'none'
+      }
+    }
+
+    document.getElementById('aiAddStep2').style.display = 'block'
+    document.getElementById('aiAddStep2').scrollIntoView({ behavior: 'smooth', block: 'start' })
+
   } catch(e) {
-    showToast('Ошибка — введи транскрипцию вручную')
+    showToast('Ошибка AI — попробуй ещё раз')
   }
-  btn.textContent = '🔤 IPA'
+
   btn.disabled = false
+  btn.textContent = '✨ Заполнить'
+  status.style.display = 'none'
 }
 
+function resetAiForm() {
+  document.getElementById('inEn').value = ''
+  document.getElementById('aiAddStep2').style.display = 'none'
+  document.getElementById('inEn').focus()
+}
+
+// ══ ADD WORD ══
 function addWord() {
-  const en = document.getElementById('inEn').value.trim()
-  const ph = document.getElementById('inPh').value.trim()
-  const ru = document.getElementById('inRu').value.trim()
-  const ex = document.getElementById('inEx').value.trim()
+  const en = document.getElementById('previewEn').value.trim() || document.getElementById('inEn').value.trim()
+  const ph = document.getElementById('previewPh').value.trim()
+  const ru = document.getElementById('previewRu').value.trim()
+  const ex = document.getElementById('previewEx').value.trim()
   if (!en || !ru) { showToast('Заполни английское слово и перевод'); return }
   const v2 = selectedCat === 'verb' && selectedVerbType === 'irregular' ? document.getElementById('inV2').value.trim() : ''
   const v3 = selectedCat === 'verb' && selectedVerbType === 'irregular' ? document.getElementById('inV3').value.trim() : ''
@@ -867,12 +1080,7 @@ function addWord() {
     verbType: selectedCat === 'verb' ? selectedVerbType : '',
     v2, v3, correct: 0, wrong: 0, seen: 0 })
   DB.saveWords(words)
-  document.getElementById('inEn').value = ''
-  document.getElementById('inPh').value = ''
-  document.getElementById('inRu').value = ''
-  document.getElementById('inEx').value = ''
-  document.getElementById('inV2').value = ''
-  document.getElementById('inV3').value = ''
+  resetAiForm()
   renderWords()
   updateHome()
   showToast('✓ Слово добавлено!')
@@ -1016,8 +1224,8 @@ function buildTestQueue() {
     return { ...w, weight }
   })
 
-  // Weighted random pick up to 20
-  const count = Math.min(20, words.length)
+  // Weighted random pick up to 10
+  const count = Math.min(10, words.length)
   const queue = []
   const pool = [...weighted]
 
@@ -1129,7 +1337,11 @@ function processAnswer(userAns) {
   if (wIdx !== -1) {
     words[wIdx].seen = (words[wIdx].seen || 0) + 1
     if (isCorrect) words[wIdx].correct = (words[wIdx].correct || 0) + 1
-    else           words[wIdx].wrong   = (words[wIdx].wrong   || 0) + 1
+    else {
+      words[wIdx].wrong = (words[wIdx].wrong || 0) + 1
+      // деградация — уменьшаем correct чтобы слово вернулось в карточки
+      if ((words[wIdx].correct || 0) > 0) words[wIdx].correct--
+    }
     DB.saveWords(words)
   }
 
@@ -1308,6 +1520,136 @@ function doImport() {
       }
     }, i * 30)
   })
+}
+
+// ══ FLASHCARDS ══
+let fcQueue = []
+let fcIdx = 0
+let fcFlipped = false
+let fcStats = { yes: 0, maybe: 0, no: 0 }
+
+function buildFcQueue() {
+  const words = DB.getWords()
+  if (words.length === 0) return []
+
+  // Weight same logic as test but no direction needed
+  return [...words].sort((a, b) => {
+    const weightOf = w => {
+      const seen = w.seen || 0
+      const correct = w.correct || 0
+      const wrong = w.wrong || 0
+      if (seen === 0) return 10
+      if (correct >= 5 && wrong === 0) return 0.2
+      return Math.max(1, (wrong * 3 + 1) / (correct + 1))
+    }
+    // Higher weight = earlier in queue (with some randomness)
+    return (weightOf(b) - weightOf(a)) + (Math.random() - 0.5) * 2
+  })
+}
+
+function startFlashcards() {
+  const words = DB.getWords()
+  if (words.length === 0) { showToast('Добавь слова в словарь'); return }
+  fcQueue = buildFcQueue()
+  fcIdx = 0
+  fcStats = { yes: 0, maybe: 0, no: 0 }
+  showScreen('flashcards')
+  renderFcCard()
+}
+
+function renderFcCard() {
+  const total = fcQueue.length
+  const w = fcQueue[fcIdx]
+
+  // progress
+  document.getElementById('fcProgFill').style.width = (fcIdx / total * 100) + '%'
+  document.getElementById('fcCounter').textContent = (fcIdx + 1) + ' / ' + total
+
+  // front
+  document.getElementById('fcWord').textContent = w.en
+  document.getElementById('fcPh').textContent = w.ph || ''
+
+  // back
+  document.getElementById('fcRu').textContent = w.ru
+  document.getElementById('fcEx').textContent = w.ex ? `"${w.ex}"` : ''
+
+  // irregular verb forms
+  const formsEl = document.getElementById('fcForms')
+  if (w.cat === 'verb' && w.verbType === 'irregular' && (w.v2 || w.v3)) {
+    formsEl.style.display = 'block'
+    formsEl.innerHTML = `<span style="color:var(--text);font-weight:700">${w.en}</span>${w.v2 ? ` → <span style="color:#FBBF24;font-weight:700">${w.v2}</span>` : ''}${w.v3 ? ` → <span style="color:#F472B6;font-weight:700">${w.v3}</span>` : ''}`
+  } else {
+    formsEl.style.display = 'none'
+  }
+
+  // reset flip state
+  fcFlipped = false
+  document.getElementById('fcCardWrap').classList.remove('flipped')
+  document.getElementById('fcFlipWrap').style.display = 'block'
+  document.getElementById('fcBtns').style.display = 'none'
+  document.getElementById('fcDoneWrap').style.display = 'none'
+  document.getElementById('fcSub').textContent = 'Нажми на карточку для перевода'
+}
+
+function fcFlip() {
+  if (fcFlipped) return
+  fcFlipped = true
+  document.getElementById('fcCardWrap').classList.add('flipped')
+  document.getElementById('fcFlipWrap').style.display = 'none'
+  document.getElementById('fcBtns').style.display = 'flex'
+  document.getElementById('fcSub').textContent = 'Как ты знаешь это слово?'
+}
+
+function fcSpeak() {
+  speak(fcQueue[fcIdx].en)
+}
+
+function fcAnswer(answer) {
+  const w = fcQueue[fcIdx]
+  const words = DB.getWords()
+  const wIdx = words.findIndex(x => x.id === w.id)
+
+  if (wIdx !== -1) {
+    words[wIdx].seen = (words[wIdx].seen || 0) + 1
+    if (answer === 'yes') {
+      words[wIdx].correct = (words[wIdx].correct || 0) + 1
+      fcStats.yes++
+    } else if (answer === 'maybe') {
+      fcStats.maybe++
+      // maybe = no change to correct/wrong, but seen++
+    } else {
+      words[wIdx].wrong = (words[wIdx].wrong || 0) + 1
+      fcStats.no++
+    }
+    DB.saveWords(words)
+  }
+
+  fcIdx++
+  if (fcIdx >= fcQueue.length) {
+    showFcDone()
+  } else {
+    renderFcCard()
+  }
+}
+
+function showFcDone() {
+  document.getElementById('fcCardWrap').classList.remove('flipped')
+  document.getElementById('fcFlipWrap').style.display = 'none'
+  document.getElementById('fcBtns').style.display = 'none'
+  document.getElementById('fcProgFill').style.width = '100%'
+  document.getElementById('fcCounter').textContent = '✓'
+
+  document.getElementById('fcDoneYes').textContent = fcStats.yes
+  document.getElementById('fcDoneMaybe').textContent = fcStats.maybe
+  document.getElementById('fcDoneNo').textContent = fcStats.no
+
+  const total = fcQueue.length
+  const pct = Math.round(fcStats.yes / total * 100)
+  document.getElementById('fcDoneTitle').textContent = pct >= 70 ? 'Отличная работа! 🎉' : 'Продолжай практиковаться! 💪'
+  document.getElementById('fcDoneSub').textContent = `${total} карточек пройдено`
+  document.getElementById('fcDoneWrap').style.display = 'block'
+  document.getElementById('fcSub').textContent = 'Сессия завершена'
+  updateHome()
 }
 
 // ══ GRAMMAR ══
@@ -1491,6 +1833,7 @@ function showScreen(id) {
   if (id === 'home') updateHome()
   if (id === 'words') renderWords()
   if (id === 'grammar') renderGrammarList()
+  if (id === 'flashcards') { /* started via startFlashcards() */ }
   if (id === 'addword') { /* nothing to init */ }
 }
 
