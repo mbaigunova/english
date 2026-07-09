@@ -1830,14 +1830,16 @@ function trAutoTranslate() {
   const text = document.getElementById('trInput').value.trim()
   if (!text) { trClear(); return }
   clearTimeout(trDebounceTimer)
+  // Minimum 3 characters before translating
+  if (text.length < 3) return
   document.getElementById('trLoading').style.display = 'block'
   document.getElementById('trResult').classList.remove('show')
-  trDebounceTimer = setTimeout(() => trTranslate(), 900)
+  trDebounceTimer = setTimeout(() => trTranslate(), 1500)
 }
 
 async function trTranslate() {
   const text = document.getElementById('trInput').value.trim()
-  if (!text) return
+  if (!text || text.length < 3) return
 
   document.getElementById('trLoading').style.display = 'block'
   document.getElementById('trResult').classList.remove('show')
@@ -1897,7 +1899,12 @@ async function trTranslate() {
     document.getElementById('trResult').classList.add('show')
 
   } catch(e) {
-    showToast('Ошибка перевода — попробуй ещё раз')
+    document.getElementById('trLoading').style.display = 'none'
+    // Only show error if user hasn't changed input (avoid stale errors)
+    const currentText = document.getElementById('trInput').value.trim()
+    if (currentText === text) {
+      showToast('Ошибка перевода — проверь соединение')
+    }
   }
 
   document.getElementById('trLoading').style.display = 'none'
