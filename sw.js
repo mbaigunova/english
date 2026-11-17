@@ -1,14 +1,8 @@
-const CACHE_NAME = 'wordbox-v1'
-const ASSETS = [
-  './',
-  './index.html',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'
-]
+const CACHE_NAME = 'wordbox-v2'
+const ASSETS = ['./', './index.html', './manifest.json']
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  )
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)))
   self.skipWaiting()
 })
 
@@ -21,30 +15,22 @@ self.addEventListener('activate', e => {
   self.clients.claim()
 })
 
+// Сначала сеть (чтобы приходили обновления), если интернета нет — из кэша
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url)
+  const req = e.request
+  if (req.method !== 'GET') return
+  const url = new URL(req.url)
+  if (url.hostname === 'api.anthropic.com') return
 
-  // AI запросы всегда через сеть
-  if (url.hostname === 'api.anthropic.com') {
-    e.respondWith(fetch(e.request).catch(() =>
-      new Response(JSON.stringify({error: 'offline'}), {
-        headers: {'Content-Type': 'application/json'}
-      })
-    ))
-    return
-  }
-
-  // Всё остальное — сначала кэш, потом сеть
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached
-      return fetch(e.request).then(response => {
-        if (response.ok) {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone))
+    fetch(req)
+      .then(res => {
+        if (res.ok) {
+          const copy = res.clone()
+          caches.open(CACHE_NAME).then(c => c.put(req, copy))
         }
-        return response
-      }).catch(() => cached)
-    })
+        return res
+      })
+      .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
   )
 })
