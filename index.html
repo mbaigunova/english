@@ -168,6 +168,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .gd-chip{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600}
 .gd-tip{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--text-mid);line-height:1.6}
 .gd-tip b{color:#FBBF24}
+.gd-row2{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px}
+.gd-row2-a{flex:1;color:var(--text-mid)}
+.gd-row2-arrow{color:var(--text-soft)}
+.gd-row2-b{flex:1;font-weight:700;color:var(--text);text-align:right}
+.gd-cell-label{font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.5px;margin-top:10px;margin-bottom:3px}
+.gd-cell-main{font-size:14px;font-weight:600;color:var(--text);line-height:1.5}
+.gd-tr{display:block;font-size:12px;font-weight:400;color:var(--text-soft);margin-bottom:6px}
 .fc-area{flex:1;padding:20px;display:flex;flex-direction:column;gap:16px}
 .fc-prog-row{display:flex;align-items:center;gap:10px}
 .fc-prog-bar{flex:1;height:5px;background:var(--surface2);border-radius:4px;overflow:hidden}
@@ -299,8 +306,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <div class="nav-card" onclick="showScreen('grammar')">
       <div class="nav-icon" style="background:rgba(251,191,36,0.15)">📚</div>
-      <div class="nav-card-text"><div class="nav-card-name">Грамматика</div><div class="nav-card-desc">Все времена — формулы и примеры</div></div>
-      <div class="nav-badge" style="background:rgba(251,191,36,0.15);color:#FBBF24">12 тем</div>
+      <div class="nav-card-text"><div class="nav-card-name">Грамматика</div><div class="nav-card-desc">Времена, условия, речь, пассив и другое</div></div>
+      <div class="nav-badge" style="background:rgba(251,191,36,0.15);color:#FBBF24">7 разделов</div>
       <div class="nav-card-arrow">›</div>
     </div>
     <div class="nav-card" onclick="showScreen('addword')">
@@ -516,15 +523,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div id="grammar" class="screen">
   <div class="s-header">
     <button class="back-btn" onclick="showScreen('home')">←</button>
-    <div><div class="s-title">📚 Грамматика</div><div class="s-sub">Времена английского языка</div></div>
+    <div><div class="s-title">📚 Грамматика</div><div class="s-sub">Выбери раздел</div></div>
   </div>
   <div class="grammar-area" id="grammarList"></div>
+</div>
+
+<!-- GRAMMAR SECTION -->
+<div id="grammarSection" class="screen">
+  <div class="s-header">
+    <button class="back-btn" onclick="showScreen('grammar')">←</button>
+    <div><div class="s-title" id="gsTitle"></div><div class="s-sub" id="gsSub"></div></div>
+  </div>
+  <div class="grammar-area" id="gsList"></div>
 </div>
 
 <!-- GRAMMAR DETAIL -->
 <div id="grammarDetail" class="screen">
   <div class="s-header">
-    <button class="back-btn" onclick="showScreen('grammar')">←</button>
+    <button class="back-btn" onclick="grammarBack()">←</button>
     <div><div class="s-title" id="gdTitle">Present Simple</div><div class="s-sub" id="gdSub"></div></div>
   </div>
   <div class="grammar-detail-area" id="gdBody"></div>
@@ -1077,32 +1093,407 @@ function trSave(){
 }
 
 // ══ GRAMMAR ══
-const GRAMMAR_DATA=[{group:'Present — Настоящее',color:'#60A5FA',tenses:[{id:'prs',name:'Present Simple',hint:'Привычки, факты',sub:'Настоящее простое',when:'Регулярные действия, привычки, факты, расписания.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I / You / We / They</span> + <span class="aux">V1</span>',f2:'<span class="pos">He / She / It</span> + <span class="aux">V1 + s/es</span>'},{label:'❌ Отрицание',f:'<span class="pos">I / You</span> + <span class="neg-mark">don\'t</span> + <span class="aux">V1</span>',f2:'<span class="pos">He / She</span> + <span class="neg-mark">doesn\'t</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Do</span> + <span class="pos">I / You</span> + <span class="aux">V1</span>?',f2:'<span class="aux">Does</span> + <span class="pos">He / She</span> + <span class="aux">V1</span>?'}],examples:[{en:'She works every day.',ru:'Она работает каждый день.'},{en:'They don\'t eat meat.',ru:'Они не едят мясо.'},{en:'Does he speak English?',ru:'Он говорит по-английски?'}],signals:['always','usually','often','sometimes','never','every day'],tip:'<b>Запомни:</b> после he/she/it добавляем <b>-s</b> или <b>-es</b>: work→works, go→goes.'},{id:'prc',name:'Present Continuous',hint:'Прямо сейчас',sub:'Настоящее длительное',when:'Действие происходит прямо сейчас, в момент речи.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I</span> + <span class="aux">am</span> + <span class="aux">V-ing</span>',f2:'<span class="pos">He/She/It</span> + <span class="aux">is</span> + <span class="aux">V-ing</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">am not</span> + <span class="aux">V-ing</span>'},{label:'❓ Вопрос',f:'<span class="aux">Am / Is / Are</span> + <span class="pos">подлежащее</span> + <span class="aux">V-ing</span>?'}],examples:[{en:'I am reading a book now.',ru:'Я читаю книгу сейчас.'},{en:'She is not working today.',ru:'Она сегодня не работает.'},{en:'Are they coming?',ru:'Они идут?'}],signals:['now','right now','at the moment','look!','listen!','currently'],tip:'<b>Запомни:</b> глагол + <b>-ing</b>: work→working, run→running, make→making.'},{id:'prp',name:'Present Perfect',hint:'Опыт / результат',sub:'Настоящее совершённое',when:'Действие в прошлом, но важен результат сейчас. Жизненный опыт.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I/You/We/They</span> + <span class="aux">have</span> + <span class="aux">V3</span>',f2:'<span class="pos">He/She/It</span> + <span class="aux">has</span> + <span class="aux">V3</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">have not</span> + <span class="aux">V3</span>'},{label:'❓ Вопрос',f:'<span class="aux">Have/Has</span> + <span class="pos">подлежащее</span> + <span class="aux">V3</span>?'}],examples:[{en:'I have visited Paris.',ru:'Я бывала в Париже.'},{en:'She has just finished work.',ru:'Она только что закончила работу.'},{en:'Have you ever eaten sushi?',ru:'Ты когда-нибудь ела суши?'}],signals:['just','already','yet','ever','never','recently','since','for'],tip:'<b>V3</b> для правильных глаголов: <b>+ed</b>. Для неправильных: go→gone, see→seen.'}]},{group:'Past — Прошедшее',color:'#F472B6',tenses:[{id:'pas',name:'Past Simple',hint:'Завершённое прошлое',sub:'Прошедшее простое',when:'Действие закончилось в прошлом. Есть конкретное время.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">V2</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="neg-mark">didn\'t</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Did</span> + <span class="pos">подлежащее</span> + <span class="aux">V1</span>?'}],examples:[{en:'I watched a movie yesterday.',ru:'Я смотрела фильм вчера.'},{en:'She didn\'t come to the party.',ru:'Она не пришла на вечеринку.'},{en:'Did you call him?',ru:'Ты ему звонила?'}],signals:['yesterday','last week','ago','in 2020','last night'],tip:'<b>Правильные:</b> +ed. <b>Неправильные:</b> go→went, see→saw, buy→bought.'},{id:'pac',name:'Past Continuous',hint:'Процесс в прошлом',sub:'Прошедшее длительное',when:'Действие было в процессе в конкретный момент прошлого.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I/He/She</span> + <span class="aux">was</span> + <span class="aux">V-ing</span>',f2:'<span class="pos">We/You/They</span> + <span class="aux">were</span> + <span class="aux">V-ing</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">was not</span> + <span class="aux">V-ing</span>'},{label:'❓ Вопрос',f:'<span class="aux">Was/Were</span> + <span class="pos">подлежащее</span> + <span class="aux">V-ing</span>?'}],examples:[{en:'I was sleeping at 10 PM.',ru:'Я спала в 10 вечера.'},{en:'They were talking when I came in.',ru:'Они разговаривали, когда я вошла.'},{en:'Was she working yesterday?',ru:'Она работала вчера?'}],signals:['at 5 o\'clock yesterday','while','when','all day long'],tip:'<b>Классика:</b> While I <b>was cooking</b>, he <b>came</b> — длительное + прерывающее.'},{id:'pap',name:'Past Perfect',hint:'До другого прошлого',sub:'Прошедшее совершённое',when:'Действие завершилось ДО другого момента в прошлом.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">had</span> + <span class="aux">V3</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="aux">had not</span> + <span class="aux">V3</span>'},{label:'❓ Вопрос',f:'<span class="aux">Had</span> + <span class="pos">подлежащее</span> + <span class="aux">V3</span>?'}],examples:[{en:'She had left before I arrived.',ru:'Она ушла до того, как я пришла.'},{en:'I hadn\'t eaten, so I was hungry.',ru:'Я не ела, поэтому была голодна.'},{en:'Had you met him before?',ru:'Ты встречала его раньше?'}],signals:['before','after','already','by the time','when'],tip:'<b>Ключевой вопрос:</b> было ли это действие раньше другого прошедшего?'}]},{group:'Future — Будущее',color:'#34D399',tenses:[{id:'fus',name:'Future Simple (will)',hint:'Решение, обещание',sub:'Будущее простое',when:'Спонтанное решение, обещание, предсказание.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">will</span> + <span class="aux">V1</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="aux">won\'t</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Will</span> + <span class="pos">подлежащее</span> + <span class="aux">V1</span>?'}],examples:[{en:'I will call you tomorrow.',ru:'Я позвоню тебе завтра.'},{en:'She won\'t come to the party.',ru:'Она не придёт на вечеринку.'},{en:'Will you help me?',ru:'Ты поможешь мне?'}],signals:['tomorrow','next week','soon','I think...','probably'],tip:'<b>will</b> — одинаково для всех лиц: I will, he will, they will.'},{id:'fug',name:'Be going to',hint:'Планы и намерения',sub:'Запланированное будущее',when:'Заранее запланированное действие. Есть намерение.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I</span> + <span class="aux">am going to</span> + <span class="aux">V1</span>',f2:'<span class="pos">He/She</span> + <span class="aux">is going to</span> + <span class="aux">V1</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">am not going to</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Am/Is/Are</span> + <span class="pos">подлежащее</span> + <span class="aux">going to V1</span>?'}],examples:[{en:'I am going to visit my parents.',ru:'Я собираюсь навестить родителей.'},{en:'She is going to start a new job.',ru:'Она собирается начать новую работу.'},{en:'Are you going to study tonight?',ru:'Ты собираешься учиться вечером?'}],signals:['tonight','next month','this weekend','I\'m planning to'],tip:'<b>will</b> = спонтанное решение 💡 <b>going to</b> = уже решила раньше 📅'},{id:'fuc',name:'Future Continuous',hint:'Процесс в будущем',sub:'Будущее длительное',when:'Действие будет в процессе в конкретный момент будущего.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">will be</span> + <span class="aux">V-ing</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="aux">won\'t be</span> + <span class="aux">V-ing</span>'},{label:'❓ Вопрос',f:'<span class="aux">Will</span> + <span class="pos">подлежащее</span> + <span class="aux">be V-ing</span>?'}],examples:[{en:'I will be sleeping at midnight.',ru:'Я буду спать в полночь.'},{en:'They will be working all day.',ru:'Они будут работать весь день.'},{en:'Will you be using the car?',ru:'Ты будешь пользоваться машиной?'}],signals:['at 5 tomorrow','this time next week','all day tomorrow'],tip:'Подчёркивает, что в момент будущего действие будет <b>в процессе</b>.'}]}]
+const TENSES_GROUPS = [{group:'Present — Настоящее',color:'#60A5FA',tenses:[{id:'prs',name:'Present Simple',hint:'Привычки, факты',sub:'Настоящее простое',when:'Регулярные действия, привычки, факты, расписания.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I / You / We / They</span> + <span class="aux">V1</span>',f2:'<span class="pos">He / She / It</span> + <span class="aux">V1 + s/es</span>'},{label:'❌ Отрицание',f:'<span class="pos">I / You</span> + <span class="neg-mark">don\'t</span> + <span class="aux">V1</span>',f2:'<span class="pos">He / She</span> + <span class="neg-mark">doesn\'t</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Do</span> + <span class="pos">I / You</span> + <span class="aux">V1</span>?',f2:'<span class="aux">Does</span> + <span class="pos">He / She</span> + <span class="aux">V1</span>?'}],examples:[{en:'She works every day.',ru:'Она работает каждый день.'},{en:'They don\'t eat meat.',ru:'Они не едят мясо.'},{en:'Does he speak English?',ru:'Он говорит по-английски?'}],signals:['always','usually','often','sometimes','never','every day'],tip:'<b>Запомни:</b> после he/she/it добавляем <b>-s</b> или <b>-es</b>: work→works, go→goes.'},{id:'prc',name:'Present Continuous',hint:'Прямо сейчас',sub:'Настоящее длительное',when:'Действие происходит прямо сейчас, в момент речи.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I</span> + <span class="aux">am</span> + <span class="aux">V-ing</span>',f2:'<span class="pos">He/She/It</span> + <span class="aux">is</span> + <span class="aux">V-ing</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">am not</span> + <span class="aux">V-ing</span>'},{label:'❓ Вопрос',f:'<span class="aux">Am / Is / Are</span> + <span class="pos">подлежащее</span> + <span class="aux">V-ing</span>?'}],examples:[{en:'I am reading a book now.',ru:'Я читаю книгу сейчас.'},{en:'She is not working today.',ru:'Она сегодня не работает.'},{en:'Are they coming?',ru:'Они идут?'}],signals:['now','right now','at the moment','look!','listen!','currently'],tip:'<b>Запомни:</b> глагол + <b>-ing</b>: work→working, run→running, make→making.'},{id:'prp',name:'Present Perfect',hint:'Опыт / результат',sub:'Настоящее совершённое',when:'Действие в прошлом, но важен результат сейчас. Жизненный опыт.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I/You/We/They</span> + <span class="aux">have</span> + <span class="aux">V3</span>',f2:'<span class="pos">He/She/It</span> + <span class="aux">has</span> + <span class="aux">V3</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">have not</span> + <span class="aux">V3</span>'},{label:'❓ Вопрос',f:'<span class="aux">Have/Has</span> + <span class="pos">подлежащее</span> + <span class="aux">V3</span>?'}],examples:[{en:'I have visited Paris.',ru:'Я бывала в Париже.'},{en:'She has just finished work.',ru:'Она только что закончила работу.'},{en:'Have you ever eaten sushi?',ru:'Ты когда-нибудь ела суши?'}],signals:['just','already','yet','ever','never','recently','since','for'],tip:'<b>V3</b> для правильных глаголов: <b>+ed</b>. Для неправильных: go→gone, see→seen.'}]},{group:'Past — Прошедшее',color:'#F472B6',tenses:[{id:'pas',name:'Past Simple',hint:'Завершённое прошлое',sub:'Прошедшее простое',when:'Действие закончилось в прошлом. Есть конкретное время.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">V2</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="neg-mark">didn\'t</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Did</span> + <span class="pos">подлежащее</span> + <span class="aux">V1</span>?'}],examples:[{en:'I watched a movie yesterday.',ru:'Я смотрела фильм вчера.'},{en:'She didn\'t come to the party.',ru:'Она не пришла на вечеринку.'},{en:'Did you call him?',ru:'Ты ему звонила?'}],signals:['yesterday','last week','ago','in 2020','last night'],tip:'<b>Правильные:</b> +ed. <b>Неправильные:</b> go→went, see→saw, buy→bought.'},{id:'pac',name:'Past Continuous',hint:'Процесс в прошлом',sub:'Прошедшее длительное',when:'Действие было в процессе в конкретный момент прошлого.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I/He/She</span> + <span class="aux">was</span> + <span class="aux">V-ing</span>',f2:'<span class="pos">We/You/They</span> + <span class="aux">were</span> + <span class="aux">V-ing</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">was not</span> + <span class="aux">V-ing</span>'},{label:'❓ Вопрос',f:'<span class="aux">Was/Were</span> + <span class="pos">подлежащее</span> + <span class="aux">V-ing</span>?'}],examples:[{en:'I was sleeping at 10 PM.',ru:'Я спала в 10 вечера.'},{en:'They were talking when I came in.',ru:'Они разговаривали, когда я вошла.'},{en:'Was she working yesterday?',ru:'Она работала вчера?'}],signals:['at 5 o\'clock yesterday','while','when','all day long'],tip:'<b>Классика:</b> While I <b>was cooking</b>, he <b>came</b> — длительное + прерывающее.'},{id:'pap',name:'Past Perfect',hint:'До другого прошлого',sub:'Прошедшее совершённое',when:'Действие завершилось ДО другого момента в прошлом.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">had</span> + <span class="aux">V3</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="aux">had not</span> + <span class="aux">V3</span>'},{label:'❓ Вопрос',f:'<span class="aux">Had</span> + <span class="pos">подлежащее</span> + <span class="aux">V3</span>?'}],examples:[{en:'She had left before I arrived.',ru:'Она ушла до того, как я пришла.'},{en:'I hadn\'t eaten, so I was hungry.',ru:'Я не ела, поэтому была голодна.'},{en:'Had you met him before?',ru:'Ты встречала его раньше?'}],signals:['before','after','already','by the time','when'],tip:'<b>Ключевой вопрос:</b> было ли это действие раньше другого прошедшего?'}]},{group:'Future — Будущее',color:'#34D399',tenses:[{id:'fus',name:'Future Simple (will)',hint:'Решение, обещание',sub:'Будущее простое',when:'Спонтанное решение, обещание, предсказание.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">will</span> + <span class="aux">V1</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="aux">won\'t</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Will</span> + <span class="pos">подлежащее</span> + <span class="aux">V1</span>?'}],examples:[{en:'I will call you tomorrow.',ru:'Я позвоню тебе завтра.'},{en:'She won\'t come to the party.',ru:'Она не придёт на вечеринку.'},{en:'Will you help me?',ru:'Ты поможешь мне?'}],signals:['tomorrow','next week','soon','I think...','probably'],tip:'<b>will</b> — одинаково для всех лиц: I will, he will, they will.'},{id:'fug',name:'Be going to',hint:'Планы и намерения',sub:'Запланированное будущее',when:'Заранее запланированное действие. Есть намерение.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">I</span> + <span class="aux">am going to</span> + <span class="aux">V1</span>',f2:'<span class="pos">He/She</span> + <span class="aux">is going to</span> + <span class="aux">V1</span>'},{label:'❌ Отрицание',f:'<span class="pos">I</span> + <span class="aux">am not going to</span> + <span class="aux">V1</span>'},{label:'❓ Вопрос',f:'<span class="aux">Am/Is/Are</span> + <span class="pos">подлежащее</span> + <span class="aux">going to V1</span>?'}],examples:[{en:'I am going to visit my parents.',ru:'Я собираюсь навестить родителей.'},{en:'She is going to start a new job.',ru:'Она собирается начать новую работу.'},{en:'Are you going to study tonight?',ru:'Ты собираешься учиться вечером?'}],signals:['tonight','next month','this weekend','I\'m planning to'],tip:'<b>will</b> = спонтанное решение 💡 <b>going to</b> = уже решила раньше 📅'},{id:'fuc',name:'Future Continuous',hint:'Процесс в будущем',sub:'Будущее длительное',when:'Действие будет в процессе в конкретный момент будущего.',formulas:[{label:'✅ Утверждение',f:'<span class="pos">Подлежащее</span> + <span class="aux">will be</span> + <span class="aux">V-ing</span>'},{label:'❌ Отрицание',f:'<span class="pos">Подлежащее</span> + <span class="aux">won\'t be</span> + <span class="aux">V-ing</span>'},{label:'❓ Вопрос',f:'<span class="aux">Will</span> + <span class="pos">подлежащее</span> + <span class="aux">be V-ing</span>?'}],examples:[{en:'I will be sleeping at midnight.',ru:'Я буду спать в полночь.'},{en:'They will be working all day.',ru:'Они будут работать весь день.'},{en:'Will you be using the car?',ru:'Ты будешь пользоваться машиной?'}],signals:['at 5 tomorrow','this time next week','all day tomorrow'],tip:'Подчёркивает, что в момент будущего действие будет <b>в процессе</b>.'}]}]
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
-  document.getElementById(id).classList.add('active')
-  if(id==='home')updateHome()
-  if(id==='words'){document.getElementById('searchInput').value='';renderWords()}
-  if(id==='grammar')renderGrammarList()
-  if(id==='translator'){trClear();setTimeout(()=>document.getElementById('trInput').focus(),300)}
-  if(id==='settings')updateKeyStatus()
-}
+TENSES_GROUPS.push({group:'Сравнение времён', color:'#FBBF24', tenses:[
+  {id:'cmp_pp_ps', name:'Present Perfect и Past Simple', hint:'Как выбрать между ними', sub:'Сравнение времён',
+   when:`Эти два времени часто путают. Выбор делает один вопрос: <b>закончился ли период времени</b>, о котором ты говоришь?`,
+   formulas:[],
+   tables:[
+     {title:'Два времени рядом', plain:true, heads:['','Present Perfect — have / has + V3','Past Simple — V2 (-ed или неправильная форма)'], rows:[
+       [`Время (Time)`,
+        `период ещё <b>не закончился</b><span class="gd-tr">this week (на этой неделе), today (сегодня), so far (пока что), in my life (за всю жизнь)</span>`,
+        `период <b>закончился</b><span class="gd-tr">yesterday (вчера), last week (на прошлой неделе), in 2019 (в 2019 году), three years ago (три года назад)</span>`],
+       [`Фокус (Focus)`,
+        `результат сейчас или опыт`,
+        `само событие в конкретный момент прошлого`],
+       [`Слова-спутники (Typical company)`,
+        `ever, never, yet, already, just, so far, for, since<span class="gd-tr">когда-либо, никогда, ещё / уже, уже, только что, пока что, в течение, с тех пор как</span>`,
+        `ago, last, in + год, when, then, yesterday<span class="gd-tr">назад, прошлый, в + год, когда, тогда, вчера</span>`],
+       [`Пример (Example)`,
+        `I've been to the theatre three times this month.<span class="gd-tr">Я была в театре три раза в этом месяце.</span>`,
+        `I went to the theatre last Tuesday.<span class="gd-tr">Я ходила в театр в прошлый вторник.</span>`]
+     ]},
+     {title:'Четыре маленьких слова, которые решают', plain:true, heads:['','Что значит','Пример'], rows:[
+       [`for`, `как долго длится период (в течение)`, `I've lived here for three years.<span class="gd-tr">Я живу здесь три года.</span>`],
+       [`since`, `когда период начался (с какого момента)`, `It has gone up since then.<span class="gd-tr">Это растёт с тех пор.</span>`],
+       [`yet`, `«ещё / уже»: до сих пор, в отрицаниях и вопросах`, `I haven't been mugged yet.<span class="gd-tr">Меня пока не ограбили.</span>`],
+       [`ago`, `конкретный закончившийся момент — только Past Simple`, `I moved in three years ago.<span class="gd-tr">Я въехала три года назад.</span>`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Один главный вопрос:</b> закончился ли период времени? <b>Yesterday</b> закончилось — Past Simple. <b>This week</b> ещё не закончилась — Present Perfect. Глагол следует за выражением времени, а не за твоим ощущением.<br><br><b>Одно законченное событие остаётся в Past Simple, даже внутри незаконченного периода.</b> <i>It took me an hour to get to work today</i> — речь о сегодняшней поездке утром, она закончена. Сравни: <i>I've had three coffees today</i> — это итог, который ещё может вырасти.`}
+]})
+
+const COND_GROUPS = [{group:'', color:'#A78BFA', tenses:[
+  {id:'cond0', name:'Zero Conditional', hint:'Общие истины и факты', sub:'Нулевое условие',
+   when:`Законы природы, общие истины и то, что происходит всегда: если случается A, то всегда следует B. Здесь <b>if</b> почти равно <b>when</b> («всякий раз, когда»).`,
+   formulas:[
+     {label:'✅ Структура', f:`<span class="aux">If</span> + <span class="pos">Present Simple</span>, <span class="pos">Present Simple</span>`},
+     {label:'🔁 Части можно поменять местами (без запятой)', f:`<span class="pos">Present Simple</span> + <span class="aux">if</span> + <span class="pos">Present Simple</span>`}
+   ],
+   examples:[
+     {en:`If you heat ice, it melts.`, ru:`Если нагреть лёд, он тает.`},
+     {en:`Plants die if they don't get water.`, ru:`Растения гибнут, если не получают воду.`},
+     {en:`If I drink coffee late, I can't sleep.`, ru:`Если я пью кофе поздно, я не могу уснуть.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['if','when','whenever','unless'],
+   tip:`<b>Запомни:</b> если часть с <b>if</b> стоит в начале предложения — после неё ставим запятую. Если в конце — запятая не нужна.`},
+
+  {id:'cond1', name:'First Conditional', hint:'Реальное условие в будущем', sub:'Первое условие',
+   when:`Реальная, вполне возможная ситуация в будущем: если условие выполнится, будет конкретный результат.`,
+   formulas:[
+     {label:'✅ Утверждение', f:`<span class="aux">If</span> + <span class="pos">Present Simple</span>, <span class="pos">will</span> + <span class="aux">V1</span>`},
+     {label:'❌ Отрицание', f:`<span class="aux">If</span> + <span class="pos">Present Simple</span>, <span class="neg-mark">won't</span> + <span class="aux">V1</span>`},
+     {label:'🔁 С unless (= if ... not)', f:`<span class="aux">Unless</span> + <span class="pos">Present Simple</span>, <span class="pos">will</span> + <span class="aux">V1</span>`}
+   ],
+   examples:[
+     {en:`If it rains, we will stay at home.`, ru:`Если пойдёт дождь, мы останемся дома.`},
+     {en:`If you study, you will pass the exam.`, ru:`Если будешь учиться, сдашь экзамен.`},
+     {en:`Unless you hurry, you will miss the train.`, ru:`Если не поторопишься, опоздаешь на поезд.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['if','unless','as long as','provided that'],
+   tip:`<b>Главная ошибка:</b> после <b>if</b> не ставим <b>will</b>. Неправильно: If it will rain... Правильно: If it <b>rains</b>, ...`},
+
+  {id:'cond2', name:'Second Conditional', hint:'Нереальное условие сейчас', sub:'Второе условие',
+   when:`Нереальная или маловероятная ситуация в настоящем или будущем: мечты, фантазии, советы («на твоём месте»).`,
+   formulas:[
+     {label:'✅ Структура', f:`<span class="aux">If</span> + <span class="pos">Past Simple</span>, <span class="pos">would</span> + <span class="aux">V1</span>`},
+     {label:'❌ Отрицание', f:`<span class="aux">If</span> + <span class="neg-mark">didn't</span> + <span class="aux">V1</span>, <span class="neg-mark">wouldn't</span> + <span class="aux">V1</span>`},
+     {label:'💡 С глаголом to be', f:`<span class="aux">If</span> + <span class="pos">I / he / she / it</span> + <span class="aux">were</span>, <span class="pos">would</span> + <span class="aux">V1</span>`}
+   ],
+   examples:[
+     {en:`If I had a lot of money, I would travel the world.`, ru:`Если бы у меня было много денег, я бы путешествовала по миру.`},
+     {en:`If I were you, I would talk to her.`, ru:`На твоём месте я бы поговорила с ней.`},
+     {en:`She would be happier if she lived by the sea.`, ru:`Она была бы счастливее, если бы жила у моря.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['if','what if','suppose','imagine'],
+   tip:`<b>Запомни:</b> Past Simple здесь не про прошлое, а про «нереальность». С глаголом to be обычно говорят <b>were</b> для всех лиц: If I <b>were</b> you...`},
+
+  {id:'cond3', name:'Third Conditional', hint:'Нереальное условие в прошлом', sub:'Третье условие',
+   when:`Нереальная ситуация в прошлом: то, что не случилось, и его возможные последствия. Часто выражает сожаление или упрёк.`,
+   formulas:[
+     {label:'✅ Структура', f:`<span class="aux">If</span> + <span class="pos">Past Perfect</span>, <span class="pos">would have</span> + <span class="aux">V3</span>`},
+     {label:'❌ Отрицание', f:`<span class="aux">If</span> + <span class="neg-mark">hadn't</span> + <span class="aux">V3</span>, <span class="neg-mark">wouldn't have</span> + <span class="aux">V3</span>`}
+   ],
+   examples:[
+     {en:`If I had studied harder, I would have passed the exam.`, ru:`Если бы я лучше училась, я бы сдала экзамен.`},
+     {en:`If she hadn't missed the bus, she wouldn't have been late.`, ru:`Если бы она не пропустила автобус, она бы не опоздала.`},
+     {en:`We would have won if we had played better.`, ru:`Мы бы выиграли, если бы играли лучше.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['if','if only'],
+   tip:`<b>Запомни:</b> и условие, и результат относятся к прошлому — изменить уже ничего нельзя. Поэтому здесь всегда <b>had + V3</b> и <b>would have + V3</b>.`},
+
+  {id:'condm', name:'Mixed Conditional', hint:'Смесь прошлого и настоящего', sub:'Смешанное условие',
+   when:`Условие и результат относятся к разным временам: прошлое влияет на настоящее или настоящее объясняет прошлое.`,
+   formulas:[
+     {label:'⏪ Прошлое → настоящее', f:`<span class="aux">If</span> + <span class="pos">Past Perfect</span>, <span class="pos">would</span> + <span class="aux">V1</span>`},
+     {label:'⏩ Настоящее → прошлое', f:`<span class="aux">If</span> + <span class="pos">Past Simple</span>, <span class="pos">would have</span> + <span class="aux">V3</span>`}
+   ],
+   examples:[
+     {en:`If I had taken that job, I would be rich now.`, ru:`Если бы я приняла ту работу, сейчас я была бы богата.`},
+     {en:`If she were more careful, she wouldn't have made that mistake.`, ru:`Будь она внимательнее, она не сделала бы эту ошибку.`}
+   ],
+   signals:[],
+   tip:`<b>Как выбрать:</b> посмотри, к какому времени относится каждая часть. Условие в прошлом + результат сейчас → Past Perfect + would + V1.`}
+]}]
+
+const REPORTED_GROUPS = [{group:'', color:'#F472B6', tenses:[
+  {id:'rep_shift', name:'Сдвиг времён и слов', hint:'Backshift: что и как меняется', sub:'Основа косвенной речи',
+   when:`Когда мы пересказываем чужие слова, время «отодвигается» на шаг в прошлое. Меняются также местоимения (I → he/she) и слова, указывающие на время и место.`,
+   formulas:[],
+   tables:[
+     {title:'Сдвиг времён', rows:[[`Present Simple`,`Past Simple`],[`Present Continuous`,`Past Continuous`],[`Present Perfect`,`Past Perfect`],[`Past Simple`,`Past Perfect`],[`will`,`would`],[`can`,`could`],[`may`,`might`]]},
+     {title:'Слова-маркеры', rows:[[`now`,`then`],[`today`,`that day`],[`yesterday`,`the day before`],[`tomorrow`,`the next day`],[`here`,`there`],[`this`,`that`],[`ago`,`before`]]}
+   ],
+   examples:[
+     {en:`"I am going to the shop now," she said. → She said she was going to the shop then.`, ru:`Она сказала, что идёт в магазин.`},
+     {en:`"I saw him yesterday," he said. → He said he had seen him the day before.`, ru:`Он сказал, что видел его накануне.`}
+   ],
+   signals:[],
+   tip:`<b>Важно:</b> если вводящий глагол в настоящем (<b>says</b>, <b>tells</b>) или сказанное остаётся верным сейчас, время можно не сдвигать: She says she is tired. Past Perfect при пересказе остаётся Past Perfect.`},
+
+  {id:'rep_stat', name:'Утверждения', hint:'Statements: said / told', sub:'Косвенная речь: утверждения',
+   when:`Пересказываем обычные утверждения. Кавычки убираем, добавляем <b>that</b> (его можно опустить), сдвигаем время и меняем местоимения.`,
+   formulas:[
+     {label:'💬 Структура', f:`<span class="pos">Подлежащее</span> + <span class="aux">said / told + кому</span> + (that) + <span class="pos">придаточное со сдвигом времени</span>`}
+   ],
+   examples:[
+     {en:`"I am tired," she said. → She said (that) she was tired.`, ru:`Она сказала, что устала.`},
+     {en:`"I will call you," he said. → He said (that) he would call me.`, ru:`Он сказал, что позвонит мне.`},
+     {en:`"We have finished," they said. → They said (that) they had finished.`, ru:`Они сказали, что закончили.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['said','told','explained','mentioned'],
+   tip:`<b>said и told:</b> после <b>told</b> всегда называем, кому сказали: She <b>told me</b> that... После <b>said</b> — без «кому»: She <b>said</b> that...`},
+
+  {id:'rep_q', name:'Вопросы', hint:'Questions: asked if / whether', sub:'Косвенная речь: вопросы',
+   when:`Пересказываем вопросы. Порядок слов становится как в утверждении: без do / does / did и без вопросительного знака.`,
+   formulas:[
+     {label:'❓ Общие вопросы (да / нет)', f:`<span class="pos">asked</span> + <span class="aux">if / whether</span> + <span class="pos">подлежащее</span> + <span class="aux">глагол (сдвиг времени)</span>`},
+     {label:'❓ Специальные вопросы', f:`<span class="pos">asked</span> + <span class="aux">вопросительное слово</span> + <span class="pos">подлежащее</span> + <span class="aux">глагол (сдвиг времени)</span>`}
+   ],
+   examples:[
+     {en:`"Do you like tea?" → She asked if I liked tea.`, ru:`Она спросила, люблю ли я чай.`},
+     {en:`"Where do you live?" → He asked where I lived.`, ru:`Он спросил, где я живу.`},
+     {en:`"Have you finished?" → She asked whether I had finished.`, ru:`Она спросила, закончила ли я.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['asked','wondered','wanted to know','if','whether'],
+   tip:`<b>Частая ошибка:</b> He asked where <b>did I live</b>. Правильно: He asked where <b>I lived</b> — после вопросительного слова порядок прямой.`},
+
+  {id:'rep_cmd', name:'Просьбы и приказы', hint:'Commands: told / asked + to', sub:'Косвенная речь: просьбы и приказы',
+   when:`Пересказываем команды и просьбы. Времена не сдвигаются — используем инфинитив с <b>to</b>.`,
+   formulas:[
+     {label:'✅ Приказ или просьба', f:`<span class="pos">told / asked</span> + <span class="pos">кого</span> + <span class="aux">to + V1</span>`},
+     {label:'❌ Запрет', f:`<span class="pos">told / asked</span> + <span class="pos">кого</span> + <span class="neg-mark">not to</span> + <span class="aux">V1</span>`}
+   ],
+   examples:[
+     {en:`"Close the door," she said. → She told me to close the door.`, ru:`Она велела мне закрыть дверь.`},
+     {en:`"Please help me," he said. → He asked me to help him.`, ru:`Он попросил меня помочь ему.`},
+     {en:`"Don't be late!" → She told us not to be late.`, ru:`Она сказала нам не опаздывать.`}
+   ],
+   signalsTitle:'Ключевые слова', signals:['told','asked','ordered','warned','advised'],
+   tip:`<b>told</b> — приказ или указание, <b>asked</b> — вежливая просьба.`}
+]}]
+
+const PASSIVE_GROUPS = [{group:'', color:'#34D399', tenses:[
+  {id:'pas_basic', name:'Passive Voice', hint:'Важно действие, а не кто его сделал', sub:'Страдательный залог',
+   when:`Используем, когда важно само действие или его результат, а не тот, кто его выполнил. Исполнителя часто не называют — или добавляют через <b>by</b>.`,
+   formulas:[
+     {label:'✅ Утверждение', f:`<span class="pos">Подлежащее</span> + <span class="aux">be</span> + <span class="aux">V3</span>`},
+     {label:'❌ Отрицание', f:`<span class="pos">Подлежащее</span> + <span class="aux">be</span> + <span class="neg-mark">not</span> + <span class="aux">V3</span>`},
+     {label:'❓ Вопрос', f:`<span class="aux">Be</span> + <span class="pos">подлежащее</span> + <span class="aux">V3</span>?`},
+     {label:'👤 Указать, кем сделано', f:`... + <span class="aux">by</span> + <span class="pos">исполнитель</span>`}
+   ],
+   examples:[
+     {en:`The window was broken yesterday.`, ru:`Окно разбили вчера.`},
+     {en:`English is spoken all over the world.`, ru:`На английском говорят по всему миру.`},
+     {en:`This book was written by Tolstoy.`, ru:`Эту книгу написал Толстой.`},
+     {en:`Tom wrote the letter. → The letter was written by Tom.`, ru:`Том написал письмо. → Письмо было написано Томом.`}
+   ],
+   signalsTitle:'Полезные предлоги', signals:['by — кем сделано','with — чем сделано'],
+   tip:`<b>Как превратить Active в Passive:</b> 1) дополнение становится подлежащим; 2) <b>be</b> ставим в нужное время; 3) смысловой глагол — в V3; 4) бывшее подлежащее — в конец с <b>by</b> (или убираем).`},
+
+  {id:'pas_tenses', name:'Passive во всех временах', hint:'Формулы и примеры по временам', sub:'Страдательный залог',
+   when:`В пассиве меняется только форма <b>be</b> — она показывает время. Смысловой глагол всегда стоит в V3.`,
+   formulas:[],
+   tables:[
+     {title:'Формулы по временам', rows:[
+       [`Present Simple`,`am / is / are + V3`,`The room is cleaned every day. — Комнату убирают каждый день.`],
+       [`Present Continuous`,`am / is / are + being + V3`,`The house is being painted now. — Дом красят сейчас.`],
+       [`Present Perfect`,`have / has + been + V3`,`The report has been finished. — Отчёт закончен.`],
+       [`Past Simple`,`was / were + V3`,`The letter was sent yesterday. — Письмо отправили вчера.`],
+       [`Past Continuous`,`was / were + being + V3`,`The bridge was being built last year. — Мост строили в прошлом году.`],
+       [`Past Perfect`,`had + been + V3`,`The work had been done before he came. — Работа была сделана до его прихода.`],
+       [`Future Simple`,`will + be + V3`,`The results will be announced tomorrow. — Результаты объявят завтра.`],
+       [`Be going to`,`am / is / are + going to + be + V3`,`A new mall is going to be built here. — Здесь построят новый торговый центр.`],
+       [`Модальные глаголы`,`can / must / should + be + V3`,`This can be done easily. — Это можно легко сделать.`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Редко используются:</b> Future Continuous и Perfect Continuous почти не употребляются в пассиве — вместо них обычно берут активный залог.`}
+]}]
+
+const TIME_GROUPS = [{group:'', color:'#FB923C', tenses:[
+  {id:'time_rule', name:'Правило: будущее после as soon as, when…', hint:'После связки — не will, а Present Simple', sub:'Time Clauses',
+   when:`Придаточные времени отвечают на вопрос «когда?». Если главная часть говорит о будущем, после слов-связок ставим <b>Present Simple</b> (иногда Present Perfect), а не <b>will</b>.`,
+   formulas:[
+     {label:'✅ Будущее', f:`<span class="pos">will + V1</span> + <span class="aux">as soon as / when / before / after / until</span> + <span class="pos">Present Simple</span>`},
+     {label:'🔁 Части можно поменять местами (с запятой)', f:`<span class="aux">As soon as</span> + <span class="pos">Present Simple</span>, <span class="pos">will</span> + <span class="aux">V1</span>`}
+   ],
+   examples:[
+     {en:`I will call you as soon as I arrive.`, ru:`Я позвоню тебе, как только приеду.`},
+     {en:`We will leave when the rain stops.`, ru:`Мы уйдём, когда дождь закончится.`},
+     {en:`Wait here until I come back.`, ru:`Подожди здесь, пока я не вернусь.`},
+     {en:`She will cook dinner before he gets home.`, ru:`Она приготовит ужин до того, как он придёт домой.`}
+   ],
+   signalsTitle:'Слова-связки', signals:['as soon as','when','before','after','until','while'],
+   tip:`<b>Главная ошибка:</b> после этих слов не ставим <b>will</b>. Неправильно: when I will arrive. Правильно: when I <b>arrive</b>.`},
+
+  {id:'time_words', name:'Слова-связки', hint:'as soon as, when, before, after, until, while…', sub:'Time Clauses',
+   when:`Основные слова, которые вводят придаточные предложения времени, и что они значат.`,
+   formulas:[],
+   tables:[
+     {title:'Что значат', rows:[
+       [`as soon as`,`как только`,`I'll text you as soon as I get home. — Напишу тебе, как только доберусь домой.`],
+       [`when`,`когда`,`Call me when you are ready. — Позвони мне, когда будешь готова.`],
+       [`before`,`до того как`,`Lock the door before you leave. — Запри дверь, прежде чем уйдёшь.`],
+       [`after`,`после того как`,`We'll eat after the film ends. — Поедим после того, как закончится фильм.`],
+       [`until / till`,`пока не`,`Stay here until I come back. — Оставайся здесь, пока я не вернусь.`],
+       [`while`,`пока, в то время как`,`Don't talk while he is working. — Не разговаривай, пока он работает.`],
+       [`whenever`,`всякий раз, когда`,`Whenever I see her, I smile. — Всякий раз, когда я её вижу, я улыбаюсь.`],
+       [`once`,`как только`,`Once you finish, send me the file. — Как только закончишь, пришли мне файл.`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Запомни:</b> когда речь о будущем, после любой из этих связок глагол стоит в Present Simple.`},
+
+  {id:'time_bythetime', name:'By the time', hint:'К тому моменту, как…', sub:'Time Clauses',
+   when:`Показывает, что одно действие уже завершилось к моменту другого. Поэтому в главной части обычно нужны совершённые времена.`,
+   formulas:[
+     {label:'⏩ Будущее', f:`<span class="aux">By the time</span> + <span class="pos">Present Simple</span>, <span class="pos">will have + V3</span>`},
+     {label:'⏪ Прошлое', f:`<span class="aux">By the time</span> + <span class="pos">Past Simple</span>, <span class="pos">had + V3</span>`}
+   ],
+   examples:[
+     {en:`By the time you arrive, I will have left.`, ru:`К тому времени, как ты приедешь, я уже уйду.`},
+     {en:`By the time we arrived, the film had started.`, ru:`К тому времени, как мы приехали, фильм уже начался.`},
+     {en:`By the time she was 25, she had visited ten countries.`, ru:`К 25 годам она уже побывала в десяти странах.`}
+   ],
+   signalsTitle:'Часто встречается с', signals:['already','by then','by the time'],
+   tip:`<b>Запомни:</b> после <b>by the time</b> про будущее тоже ставим Present Simple, не will. А главная часть показывает, что действие уже закончится: <b>will have + V3</b>.`}
+]}]
+
+const COMPARE_GROUPS = [{group:'', color:'#38BDF8', tenses:[
+  {id:'cmp_compare', name:'Сравнение двух вещей', hint:'Comparing two things', sub:'Comparing two things',
+   when:`Конструкции, чтобы сказать, что одна вещь лучше, хуже или такая же, как другая.`,
+   formulas:[],
+   tables:[
+     {title:'Что хочешь сказать → как сказать', heads:['','Конструкция','Пример'], rows:[
+       [`A лучше (A is better)`, `more ... than / -er than`, `The second one is more original than the first. — Второй оригинальнее первого.`],
+       [`A намного лучше (A is much better)`, `much / far / a lot + сравнительная степень`, `That sounds much more interesting. — Звучит гораздо интереснее.`],
+       [`A чуть лучше (A is slightly better)`, `a bit / slightly + сравнительная степень`, `It's slightly longer than the original. — Это чуть длиннее оригинала.`],
+       [`Они одинаковые (They are the same)`, `as ... as`, `It's as good as everyone says. — Это так же хорошо, как все говорят.`],
+       [`A намного хуже (A is far worse)`, `nothing like as ... as`, `It was nothing like as good as I expected. — Это было совсем не так хорошо, как я ожидала.`],
+       [`A — лучший (A is the top)`, `the + превосходная степень`, `It's the most entertaining game I've ever played. — Это самая увлекательная игра, в которую я когда-либо играла.`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Запомни:</b> у коротких прилагательных добавляем <b>-er</b> / <b>the -est</b> (long → longer → the longest), у длинных — <b>more</b> / <b>the most</b> (more interesting → the most interesting).`},
+
+  {id:'cmp_recommend', name:'Рекомендовать и отказывать', hint:'Recommending, and turning something down', sub:'Recommending, and turning something down',
+   when:`Фразы для разговора: как посоветовать что-то, как не посоветовать и как предложить другой вариант. У каждой ситуации есть уверенный, «тёплый» вариант и более осторожный, мягкий.`,
+   formulas:[],
+   tables:[
+     {title:'Фразы по ситуациям', plain:true, heads:['','Тепло и уверенно (Warm)','Осторожно и мягко (Careful)'], rows:[
+       [`Да, советую (Yes)`,
+        `It's definitely worth seeing.<span class="gd-tr">Это определённо стоит посмотреть.</span>I'd highly recommend it.<span class="gd-tr">Я бы очень рекомендовал(а) это.</span>`,
+        `It's worth a look if you like that sort of thing.<span class="gd-tr">Стоит взглянуть, если тебе нравится такое.</span>`],
+       [`Нет, не советую (No)`,
+        `I wouldn't recommend it.<span class="gd-tr">Я бы не рекомендовал(а) это.</span>It's really not worth seeing.<span class="gd-tr">Это правда не стоит смотреть.</span>`,
+        `I'm pretty sure you wouldn't like it.<span class="gd-tr">Я почти уверен(а), что тебе это не понравится.</span>It's not really my sort of thing.<span class="gd-tr">Это не совсем в моём вкусе.</span>`],
+       [`Предложить другое (Suggesting instead)`,
+        `Why don't we...?<span class="gd-tr">Почему бы нам не...?</span>We could...<span class="gd-tr">Мы могли бы...</span>`,
+        `If you're really sure, there's... on the other channel.<span class="gd-tr">Если ты действительно уверен(а), то на другом канале идёт...</span>`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Совет:</b> «осторожные» фразы звучат мягче и вежливее — их удобно использовать, когда не хочешь прямо отказать или обидеть собеседника.`}
+]}]
+
+const VERBPAT_GROUPS = [{group:'', color:'#FB7185', tenses:[
+  {id:'vp_main', name:'-ing или to: что после чего', hint:'Verb patterns: смотри на слово перед глаголом', sub:'Verb patterns',
+   when:`После одних глаголов, предлогов и прилагательных второй глагол ставится в форме <b>-ing</b>, после других — в форме <b>to + глагол</b>. Выбор делает не желание, а правило.`,
+   formulas:[],
+   tables:[
+     {title:'Четыре группы', plain:true, heads:['','Какие слова','Пример'], rows:[
+       [`глагол + -ing (verb + -ing)`,
+        `enjoy, avoid, finish, mind, imagine, keep, practise, suggest, can't stand, spend time<span class="gd-tr">наслаждаться, избегать, заканчивать, возражать, представлять, продолжать, практиковать, предлагать, терпеть не могу, проводить время</span>`,
+        `I enjoy watching thrillers.<span class="gd-tr">Я люблю смотреть триллеры.</span>`],
+       [`глагол + to (verb + to)`,
+        `decide, hope, plan, want, need, manage, deserve, expect, promise, refuse, seem, tend<span class="gd-tr">решать, надеяться, планировать, хотеть, нуждаться, суметь, заслуживать, ожидать, обещать, отказываться, казаться, иметь склонность</span>`,
+        `He decided to leave.<span class="gd-tr">Он решил уйти.</span>`],
+       [`предлог + -ing (preposition + -ing)`,
+        `после about, at, of, in, on, for, without — и после look forward to<span class="gd-tr">о, в / на, из / о, в, на, для / за, без — и после «ждать с нетерпением»</span>`,
+        `She fantasizes about becoming an actress.<span class="gd-tr">Она мечтает стать актрисой.</span>`],
+       [`прилагательное + to (adjective + to)`,
+        `easy, difficult, hard, worth (+ -ing), nice, glad<span class="gd-tr">лёгкий, трудный, трудный, стоящий (+ -ing), приятно, рад</span>`,
+        `It's difficult to follow. It's worth seeing.<span class="gd-tr">За этим трудно следить. Это стоит посмотреть.</span>`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Смотри налево, а не направо.</b> У второго глагола нет выбора. Найди слово перед ним (глагол или предлог) — и форма определится сама.<br><br><b>Ловушка — look forward to.</b> Здесь <i>to</i> — предлог, а не часть инфинитива, поэтому дальше идёт -ing: <i>I'm looking forward to seeing you</i>, а не <s>to see</s>.`},
+
+  {id:'vp_change', name:'remember, stop, try', hint:'Смысл меняется: -ing или to', sub:'Verb patterns',
+   when:`Эти глаголы можно употреблять и с <b>-ing</b>, и с <b>to</b>, но смысл при этом разный.`,
+   formulas:[],
+   tables:[
+     {title:'Одно слово — два смысла', plain:true, heads:['','+ -ing','+ to'], rows:[
+       [`remember`,
+        `I remember watching it as a child.<span class="gd-tr">Я помню, как смотрел(а) это в детстве. (воспоминание)</span>`,
+        `Remember to watch it tonight.<span class="gd-tr">Не забудь посмотреть это сегодня вечером. (задача)</span>`],
+       [`stop`,
+        `He stopped watching.<span class="gd-tr">Он перестал смотреть. (больше не смотрит)</span>`,
+        `He stopped to watch.<span class="gd-tr">Он остановился, чтобы посмотреть. (сделал паузу ради просмотра)</span>`],
+       [`try`,
+        `Try watching it with subtitles.<span class="gd-tr">Попробуй посмотреть это с субтитрами. (эксперимент)</span>`,
+        `He tried to watch it.<span class="gd-tr">Он пытался это посмотреть. (приложил усилие)</span>`]
+     ]}
+   ],
+   examples:[],
+   signals:[],
+   tip:`<b>Запомни:</b> <b>-ing</b> обычно про то, что было или происходит на самом деле (воспоминание, эксперимент, прекращённое действие), а <b>to</b> — про цель, задачу или усилие.`}
+]}]
+
+const GRAMMAR_SECTIONS = [
+  {id:'tenses', icon:'⏱', name:'Времена', hint:'Present, Past, Future — формулы и примеры', color:'#60A5FA', bg:'rgba(96,165,250,0.15)', groups:TENSES_GROUPS},
+  {id:'conditionals', icon:'🔀', name:'Условные предложения', hint:'Zero, First, Second, Third, Mixed', color:'#A78BFA', bg:'rgba(167,139,250,0.15)', groups:COND_GROUPS},
+  {id:'reported', icon:'💬', name:'Косвенная речь', hint:'Reported Speech', color:'#F472B6', bg:'rgba(244,114,182,0.15)', groups:REPORTED_GROUPS},
+  {id:'passive', icon:'🔄', name:'Страдательный залог', hint:'Passive Voice', color:'#34D399', bg:'rgba(52,211,153,0.15)', groups:PASSIVE_GROUPS},
+  {id:'timeclauses', icon:'⏰', name:'Придаточные времени', hint:'Time Clauses: as soon as, when, by the time', color:'#FB923C', bg:'rgba(251,146,60,0.15)', groups:TIME_GROUPS},
+  {id:'compare', icon:'⚖️', name:'Сравнения и рекомендации', hint:'Comparing things, recommending', color:'#38BDF8', bg:'rgba(56,189,248,0.15)', groups:COMPARE_GROUPS},
+  {id:'verbpatterns', icon:'🧩', name:'Герундий и инфинитив', hint:'Verb patterns: -ing или to', color:'#FB7185', bg:'rgba(251,113,133,0.15)', groups:VERBPAT_GROUPS}
+]
+
 function renderGrammarList(){
-  document.getElementById('grammarList').innerHTML=GRAMMAR_DATA.map(g=>`<div class="grammar-group-title" style="color:${g.color}">${g.group}</div>${g.tenses.map(t=>`<div class="grammar-item" onclick="openGrammarDetail('${t.id}')"><div class="grammar-item-dot" style="background:${g.color}"></div><div class="grammar-item-body"><div class="grammar-item-name">${t.name}</div><div class="grammar-item-hint">${t.hint}</div></div><div class="grammar-item-arrow">›</div></div>`).join('')}`).join('')
+  document.getElementById('grammarList').innerHTML=GRAMMAR_SECTIONS.map(s=>{
+    const n=s.groups.reduce((c,g)=>c+g.tenses.length,0)
+    return `<div class="nav-card" onclick="openGrammarSection('${s.id}')"><div class="nav-icon" style="background:${s.bg}">${s.icon}</div><div class="nav-card-text"><div class="nav-card-name">${s.name}</div><div class="nav-card-desc">${s.hint}</div></div><div class="nav-badge" style="background:${s.bg};color:${s.color}">${n}</div><div class="nav-card-arrow">›</div></div>`
+  }).join('')
 }
+
+function openGrammarSection(id){
+  const s=GRAMMAR_SECTIONS.find(x=>x.id===id); if(!s)return
+  document.getElementById('gsTitle').textContent=s.icon+' '+s.name
+  document.getElementById('gsSub').textContent=s.hint
+  document.getElementById('gsList').innerHTML=s.groups.map(g=>
+    (g.group?`<div class="grammar-group-title" style="color:${g.color}">${g.group}</div>`:'')+
+    g.tenses.map(t=>`<div class="grammar-item" onclick="openGrammarDetail('${t.id}')"><div class="grammar-item-dot" style="background:${g.color}"></div><div class="grammar-item-body"><div class="grammar-item-name">${t.name}</div><div class="grammar-item-hint">${t.hint}</div></div><div class="grammar-item-arrow">›</div></div>`).join('')
+  ).join('')
+  showScreen('grammarSection'); window.scrollTo(0,0)
+}
+
+function grammarBack(){showScreen('grammarSection')}
+
+function gdSection(title,inner,bodyStyle){
+  return `<div class="gd-section"><div class="gd-section-title">${title}</div><div class="gd-body"${bodyStyle?` style="${bodyStyle}"`:''}>${inner}</div></div>`
+}
+
+function renderGdTable(t){
+  const label=i=>t.heads&&t.heads[i]?`<div class="gd-cell-label">${t.heads[i]}</div>`:''
+  const rows=t.rows.map(r=>{
+    if(r.length===2) return `<div class="gd-row2"><span class="gd-row2-a">${r[0]}</span><span class="gd-row2-arrow">→</span><span class="gd-row2-b">${r[1]}</span></div>`
+    const c1=t.plain?`<div class="gd-cell-main">${r[1]}</div>`:`<div class="gd-formula" style="font-size:13px">${r[1]}</div>`
+    const c2=t.plain?`<div class="gd-cell-main">${r[2]}</div>`:`<div class="gd-ex-ru">${r[2]}</div>`
+    return `<div class="gd-example"><div class="gd-ex-en" style="color:#FBBF24">${r[0]}</div>${label(1)}${c1}${label(2)}${c2}</div>`
+  }).join('')
+  return gdSection(t.title,rows,'display:flex;flex-direction:column;gap:8px')
+}
+
 function openGrammarDetail(id){
-  const tense=GRAMMAR_DATA.flatMap(g=>g.tenses).find(t=>t.id===id);if(!tense)return
-  document.getElementById('gdTitle').textContent=tense.name
-  document.getElementById('gdSub').textContent=tense.sub
-  document.getElementById('gdBody').innerHTML=`
-    <div class="gd-section"><div class="gd-section-title">Когда использовать</div><div class="gd-body"><div class="gd-when">${tense.when}</div></div></div>
-    <div class="gd-section"><div class="gd-section-title">Формула</div><div class="gd-body" style="display:flex;flex-direction:column;gap:12px">${tense.formulas.map(f=>`<div><div style="font-size:11px;font-weight:700;color:var(--text-soft);margin-bottom:6px">${f.label}</div><div class="gd-formula">${f.f}</div>${f.f2?`<div class="gd-formula" style="margin-top:4px">${f.f2}</div>`:''}</div>`).join('')}</div></div>
-    <div class="gd-section"><div class="gd-section-title">Примеры</div><div class="gd-body"><div class="gd-example-row">${tense.examples.map(e=>`<div class="gd-example"><div class="gd-ex-en">${e.en}</div><div class="gd-ex-ru">${e.ru}</div></div>`).join('')}</div></div></div>
-    <div class="gd-section"><div class="gd-section-title">Сигнальные слова</div><div class="gd-body"><div class="gd-signal-chips">${tense.signals.map(s=>`<span class="gd-chip">${s}</span>`).join('')}</div></div></div>
-    <div class="gd-tip">💡 ${tense.tip}</div>`
-  showScreen('grammarDetail')
+  const item=GRAMMAR_SECTIONS.flatMap(s=>s.groups).flatMap(g=>g.tenses).find(t=>t.id===id); if(!item)return
+  document.getElementById('gdTitle').textContent=item.name
+  document.getElementById('gdSub').textContent=item.sub||''
+  let html=gdSection('Когда использовать',`<div class="gd-when">${item.when}</div>`)
+  if(item.formulas&&item.formulas.length){
+    html+=gdSection('Формула',item.formulas.map(f=>`<div><div style="font-size:11px;font-weight:700;color:var(--text-soft);margin-bottom:6px">${f.label}</div><div class="gd-formula">${f.f}</div>${f.f2?`<div class="gd-formula" style="margin-top:4px">${f.f2}</div>`:''}</div>`).join(''),'display:flex;flex-direction:column;gap:12px')
+  }
+  ;(item.tables||[]).forEach(t=>{html+=renderGdTable(t)})
+  if(item.examples&&item.examples.length){
+    html+=gdSection('Примеры',`<div class="gd-example-row">${item.examples.map(e=>`<div class="gd-example"><div class="gd-ex-en">${e.en}</div><div class="gd-ex-ru">${e.ru}</div></div>`).join('')}</div>`)
+  }
+  if(item.signals&&item.signals.length){
+    html+=gdSection(item.signalsTitle||'Сигнальные слова',`<div class="gd-signal-chips">${item.signals.map(s=>`<span class="gd-chip">${s}</span>`).join('')}</div>`)
+  }
+  if(item.tip) html+=`<div class="gd-tip">💡 ${item.tip}</div>`
+  document.getElementById('gdBody').innerHTML=html
+  showScreen('grammarDetail'); window.scrollTo(0,0)
 }
+
 
 // ══ SPEECH ══
 function speak(text){if('speechSynthesis' in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=0.85;window.speechSynthesis.speak(u)}}
